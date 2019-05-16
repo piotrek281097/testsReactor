@@ -26,7 +26,6 @@ public class AtmMachineTest {
     private AuthenticationToken authenticationToken;
     private Card card;
     private Money money;
-    private Money money2;
 
 
     @Before
@@ -37,6 +36,10 @@ public class AtmMachineTest {
 
         atmMachine = new AtmMachine(cardService, bankService, moneyDepot);
 
+        card = Card.builder()
+                   .withCardNumber("cardNumber")
+                   .withPinNumber(2345)
+                   .build();
     }
 
     @Test
@@ -47,15 +50,11 @@ public class AtmMachineTest {
     @Test(expected = WrongMoneyAmountException.class)
     public void testShouldThrowWrongMoneyAmountException() {
 
-        money2 = Money.builder()
+        money = Money.builder()
                      .withAmount(-1000)
                      .withCurrency(Currency.PL)
                      .build();
 
-        card = Card.builder()
-                   .withCardNumber("cardNumber")
-                   .withPinNumber(2345)
-                   .build();
 
         atmMachine.withdraw(money, card);
     }
@@ -68,10 +67,6 @@ public class AtmMachineTest {
                      .withCurrency(Currency.PL)
                      .build();
 
-        card = Card.builder()
-                   .withCardNumber("cardNumber")
-                   .withPinNumber(2345)
-                   .build();
 
         atmMachine.withdraw(money, card);
     }
@@ -84,10 +79,7 @@ public class AtmMachineTest {
                      .withCurrency(Currency.PL)
                      .build();
 
-        card = Card.builder()
-                   .withCardNumber("cardNumber")
-                   .withPinNumber(2345)
-                   .build();
+
 
         when(cardService.authorize(card)).thenReturn(Optional.empty());
 
@@ -101,10 +93,7 @@ public class AtmMachineTest {
                      .withCurrency(Currency.PL)
                      .build();
 
-        card = Card.builder()
-                   .withCardNumber("cardNumber")
-                   .withPinNumber(2345)
-                   .build();
+
 
         authenticationToken = AuthenticationToken.builder()
                                                  .withAuthorizationCode(2345)
@@ -123,10 +112,6 @@ public class AtmMachineTest {
                      .withCurrency(Currency.PL)
                      .build();
 
-        card = Card.builder()
-                   .withCardNumber("cardNumber")
-                   .withPinNumber(2345)
-                   .build();
 
         authenticationToken = AuthenticationToken.builder()
                                                  .withAuthorizationCode(2345)
@@ -148,10 +133,7 @@ public class AtmMachineTest {
                      .withCurrency(Currency.PL)
                      .build();
 
-        card = Card.builder()
-                   .withCardNumber("cardNumber")
-                   .withPinNumber(2345)
-                   .build();
+
 
         authenticationToken = AuthenticationToken.builder()
                                                  .withAuthorizationCode(2345)
@@ -190,10 +172,7 @@ public class AtmMachineTest {
                      .withCurrency(Currency.PL)
                      .build();
 
-        card = Card.builder()
-                   .withCardNumber("cardNumber")
-                   .withPinNumber(2345)
-                   .build();
+
 
         authenticationToken = AuthenticationToken.builder()
                                                  .withAuthorizationCode(2345)
@@ -231,10 +210,6 @@ public class AtmMachineTest {
                      .withCurrency(Currency.PL)
                      .build();
 
-        card = Card.builder()
-                   .withCardNumber("cardNumber")
-                   .withPinNumber(2345)
-                   .build();
 
         authenticationToken = AuthenticationToken.builder()
                                                  .withAuthorizationCode(2345)
@@ -272,10 +247,6 @@ public class AtmMachineTest {
                      .withCurrency(Currency.PL)
                      .build();
 
-        card = Card.builder()
-                   .withCardNumber("cardNumber")
-                   .withPinNumber(2345)
-                   .build();
 
         authenticationToken = AuthenticationToken.builder()
                                                  .withAuthorizationCode(2345)
