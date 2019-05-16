@@ -1,14 +1,19 @@
 package edu.iis.mto.testreactor.exc3;
 
+import static com.sun.javaws.JnlpxArgs.verify;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class AtmMachineTest {
 
@@ -123,29 +128,6 @@ public class AtmMachineTest {
 
         atmMachine.withdraw(money, card);
     }
-/*
-    @Test(expected = MoneyDepotException.class)
-    public void testShouldThrowMoneyDepotException() {
-        money = Money.builder()
-                     .withAmount(1000)
-                     .withCurrency(Currency.PL)
-                     .build();
-
-        card = Card.builder()
-                   .withCardNumber("cardNumber")
-                   .withPinNumber(2345)
-                   .build();
-
-        authenticationToken = AuthenticationToken.builder()
-                                                 .withAuthorizationCode(2345)
-                                                 .withUserId("id1")
-                                                 .build();
-
-        when(cardService.authorize(card)).thenReturn(Optional.of(authenticationToken));
-
-        atmMachine.withdraw(money, card);
-    }
-*/
 
     @Test(expected = MoneyDepotException.class)
     public void testShouldThrowMoneyDepotException() {
@@ -172,7 +154,47 @@ public class AtmMachineTest {
     }
 
 
+    @Test
+    public void testShouldReturnThatMethodChargeWasCalledTwice() {
+        money = Money.builder()
+                     .withAmount(10)
+                     .withCurrency(Currency.PL)
+                     .build();
 
+        card = Card.builder()
+                   .withCardNumber("cardNumber")
+                   .withPinNumber(2345)
+                   .build();
+
+        authenticationToken = AuthenticationToken.builder()
+                                                 .withAuthorizationCode(2345)
+                                                 .withUserId("id1")
+                                                 .build();
+
+        when(cardService.authorize(card)).thenReturn(Optional.of(authenticationToken));
+
+        when(bankService.charge(authenticationToken, money)).thenReturn(true);
+
+        List<Banknote> banknotes = Banknote.forCurrency(money.getCurrency())
+                                           .stream()
+                                           .sorted(Collections.reverseOrder())
+                                           .collect(Collectors.toList());
+
+        int amount = money.getAmount();
+        List<Banknote> paymentBanknotes = new ArrayList<>();
+        for (Banknote banknote : banknotes) {
+            while (amount >= banknote.getValue()) {
+                amount = amount - banknote.getValue();
+                paymentBanknotes.add(banknote);
+            }
+        }
+
+        when(moneyDepot.releaseBanknotes(paymentBanknotes)).thenReturn(true);
+
+        Payment payment = atmMachine.withdraw(money, card);
+        Payment payment2 = atmMachine.withdraw(money, card);
+        Mockito.verify(bankService, times(2)).charge(authenticationToken, money);
+    }
 
 
 
