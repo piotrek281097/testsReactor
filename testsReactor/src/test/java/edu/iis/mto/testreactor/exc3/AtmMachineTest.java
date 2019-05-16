@@ -3,15 +3,18 @@ package edu.iis.mto.testreactor.exc3;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Optional;
 
 public class AtmMachineTest {
 
 
     private BankService bankService;
-    private CardProviderService cardProviderService;
+    private CardProviderService cardService;
     private MoneyDepot moneyDepot;
     private AtmMachine atmMachine;
     private AuthenticationToken authenticationToken;
@@ -21,10 +24,10 @@ public class AtmMachineTest {
     @Before
     public void setup() {
         bankService = mock(BankService.class);
-        cardProviderService = mock(CardProviderService.class);
+        cardService = mock(CardProviderService.class);
         moneyDepot = mock(MoneyDepot.class);
 
-        atmMachine = new AtmMachine(cardProviderService, bankService, moneyDepot);
+        atmMachine = new AtmMachine(cardService, bankService, moneyDepot);
 
         /*
         authenticationToken = AuthenticationToken.builder()
@@ -80,5 +83,25 @@ public class AtmMachineTest {
 
         atmMachine.withdraw(money, card);
     }
+
+    @Test(expected = CardAuthorizationException.class)
+    public void testShouldThrowCardAuthorizationException() {
+
+        money = Money.builder()
+                     .withAmount(1000)
+                     .withCurrency(Currency.PL)
+                     .build();
+
+        card = Card.builder()
+                   .withCardNumber("cardNumber")
+                   .withPinNumber(2345)
+                   .build();
+
+        when(cardService.authorize(card)).thenReturn(Optional.empty());
+
+        atmMachine.withdraw(money, card);
+    }
+
+
 
 }
