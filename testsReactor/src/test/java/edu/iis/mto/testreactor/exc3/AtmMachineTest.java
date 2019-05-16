@@ -40,6 +40,11 @@ public class AtmMachineTest {
                    .withCardNumber("cardNumber")
                    .withPinNumber(2345)
                    .build();
+
+        authenticationToken = AuthenticationToken.builder()
+                                                 .withAuthorizationCode(2345)
+                                                 .withUserId("id1")
+                                                 .build();
     }
 
     @Test
@@ -95,11 +100,6 @@ public class AtmMachineTest {
 
 
 
-        authenticationToken = AuthenticationToken.builder()
-                                                 .withAuthorizationCode(2345)
-                                                 .withUserId("id1")
-                                                 .build();
-
         when(cardService.authorize(card)).thenReturn(Optional.of(authenticationToken));
 
         atmMachine.withdraw(money, card);
@@ -112,11 +112,6 @@ public class AtmMachineTest {
                      .withCurrency(Currency.PL)
                      .build();
 
-
-        authenticationToken = AuthenticationToken.builder()
-                                                 .withAuthorizationCode(2345)
-                                                 .withUserId("id1")
-                                                 .build();
 
         when(cardService.authorize(card)).thenReturn(Optional.of(authenticationToken));
 
@@ -135,10 +130,7 @@ public class AtmMachineTest {
 
 
 
-        authenticationToken = AuthenticationToken.builder()
-                                                 .withAuthorizationCode(2345)
-                                                 .withUserId("id1")
-                                                 .build();
+
 
         when(cardService.authorize(card)).thenReturn(Optional.of(authenticationToken));
 
@@ -174,10 +166,7 @@ public class AtmMachineTest {
 
 
 
-        authenticationToken = AuthenticationToken.builder()
-                                                 .withAuthorizationCode(2345)
-                                                 .withUserId("id1")
-                                                 .build();
+
 
         when(cardService.authorize(card)).thenReturn(Optional.of(authenticationToken));
 
@@ -211,10 +200,6 @@ public class AtmMachineTest {
                      .build();
 
 
-        authenticationToken = AuthenticationToken.builder()
-                                                 .withAuthorizationCode(2345)
-                                                 .withUserId("id1")
-                                                 .build();
 
         when(cardService.authorize(card)).thenReturn(Optional.of(authenticationToken));
 
@@ -248,10 +233,7 @@ public class AtmMachineTest {
                      .build();
 
 
-        authenticationToken = AuthenticationToken.builder()
-                                                 .withAuthorizationCode(2345)
-                                                 .withUserId("id1")
-                                                 .build();
+
 
         when(cardService.authorize(card)).thenReturn(Optional.of(authenticationToken));
 
