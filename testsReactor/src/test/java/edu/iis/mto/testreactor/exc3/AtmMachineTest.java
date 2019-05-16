@@ -123,6 +123,53 @@ public class AtmMachineTest {
 
         atmMachine.withdraw(money, card);
     }
+/*
+    @Test(expected = MoneyDepotException.class)
+    public void testShouldThrowMoneyDepotException() {
+        money = Money.builder()
+                     .withAmount(1000)
+                     .withCurrency(Currency.PL)
+                     .build();
+
+        card = Card.builder()
+                   .withCardNumber("cardNumber")
+                   .withPinNumber(2345)
+                   .build();
+
+        authenticationToken = AuthenticationToken.builder()
+                                                 .withAuthorizationCode(2345)
+                                                 .withUserId("id1")
+                                                 .build();
+
+        when(cardService.authorize(card)).thenReturn(Optional.of(authenticationToken));
+
+        atmMachine.withdraw(money, card);
+    }
+*/
+
+    @Test(expected = MoneyDepotException.class)
+    public void testShouldThrowMoneyDepotException() {
+        money = Money.builder()
+                     .withAmount(10)
+                     .withCurrency(Currency.PL)
+                     .build();
+
+        card = Card.builder()
+                   .withCardNumber("cardNumber")
+                   .withPinNumber(2345)
+                   .build();
+
+        authenticationToken = AuthenticationToken.builder()
+                                                 .withAuthorizationCode(2345)
+                                                 .withUserId("id1")
+                                                 .build();
+
+        when(cardService.authorize(card)).thenReturn(Optional.of(authenticationToken));
+
+        when(bankService.charge(authenticationToken, money)).thenReturn(true);
+
+        Payment payment = atmMachine.withdraw(money, card);
+    }
 
 
 
