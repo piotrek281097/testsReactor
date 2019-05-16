@@ -26,6 +26,8 @@ public class AtmMachineTest {
     private AuthenticationToken authenticationToken;
     private Card card;
     private Money money;
+    private Money money2;
+
 
     @Before
     public void setup() {
@@ -35,22 +37,6 @@ public class AtmMachineTest {
 
         atmMachine = new AtmMachine(cardService, bankService, moneyDepot);
 
-        /*
-        authenticationToken = AuthenticationToken.builder()
-                                                 .withAuthorizationCode(2345)
-                                                 .withUserId("id1")
-                                                 .build();
-
-        card = Card.builder()
-                   .withCardNumber("cardNumber")
-                   .withPinNumber(2345)
-                   .build();
-
-        money = Money.builder()
-                     .withAmount(1000)
-                     .withCurrency(Currency.PL)
-                     .build();
-                     */
     }
 
     @Test
@@ -61,7 +47,7 @@ public class AtmMachineTest {
     @Test(expected = WrongMoneyAmountException.class)
     public void testShouldThrowWrongMoneyAmountException() {
 
-        money = Money.builder()
+        money2 = Money.builder()
                      .withAmount(-1000)
                      .withCurrency(Currency.PL)
                      .build();
@@ -277,6 +263,47 @@ public class AtmMachineTest {
 
         Payment payment = atmMachine.withdraw(money, card);
         assertThat(payment.getValue().size(), Matchers.is(1));
+    }
+
+    @Test
+    public void testShouldReturnThatIstwoBanknots() {
+        money = Money.builder()
+                     .withAmount(30)
+                     .withCurrency(Currency.PL)
+                     .build();
+
+        card = Card.builder()
+                   .withCardNumber("cardNumber")
+                   .withPinNumber(2345)
+                   .build();
+
+        authenticationToken = AuthenticationToken.builder()
+                                                 .withAuthorizationCode(2345)
+                                                 .withUserId("id1")
+                                                 .build();
+
+        when(cardService.authorize(card)).thenReturn(Optional.of(authenticationToken));
+
+        when(bankService.charge(authenticationToken, money)).thenReturn(true);
+
+        List<Banknote> banknotes = Banknote.forCurrency(money.getCurrency())
+                                           .stream()
+                                           .sorted(Collections.reverseOrder())
+                                           .collect(Collectors.toList());
+
+        int amount = money.getAmount();
+        List<Banknote> paymentBanknotes = new ArrayList<>();
+        for (Banknote banknote : banknotes) {
+            while (amount >= banknote.getValue()) {
+                amount = amount - banknote.getValue();
+                paymentBanknotes.add(banknote);
+            }
+        }
+
+        when(moneyDepot.releaseBanknotes(paymentBanknotes)).thenReturn(true);
+
+        Payment payment = atmMachine.withdraw(money, card);
+        assertThat(payment.getValue().size(), Matchers.is(2));
     }
 
 }
