@@ -102,6 +102,31 @@ public class AtmMachineTest {
         atmMachine.withdraw(money, card);
     }
 
+    @Test(expected = InsufficientFundsException.class)
+    public void testShouldThrowInsufficientFundsException() {
+        money = Money.builder()
+                     .withAmount(1000)
+                     .withCurrency(Currency.PL)
+                     .build();
+
+        card = Card.builder()
+                   .withCardNumber("cardNumber")
+                   .withPinNumber(2345)
+                   .build();
+
+        authenticationToken = AuthenticationToken.builder()
+                                                 .withAuthorizationCode(2345)
+                                                 .withUserId("id1")
+                                                 .build();
+
+        when(cardService.authorize(card)).thenReturn(Optional.of(authenticationToken));
+
+        atmMachine.withdraw(money, card);
+    }
+
+
+
+
 
 
 }
