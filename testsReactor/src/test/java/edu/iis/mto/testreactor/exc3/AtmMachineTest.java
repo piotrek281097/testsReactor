@@ -65,4 +65,20 @@ public class AtmMachineTest {
         atmMachine.withdraw(money, card);
     }
 
+    @Test(expected = WrongMoneyAmountException.class)
+    public void testShouldThrowWrongMoneyAmountExceptionBecausecannotBePayedWithBanknotes() {
+
+        money = Money.builder()
+                     .withAmount(1111)
+                     .withCurrency(Currency.PL)
+                     .build();
+
+        card = Card.builder()
+                   .withCardNumber("cardNumber")
+                   .withPinNumber(2345)
+                   .build();
+
+        atmMachine.withdraw(money, card);
+    }
+
 }
