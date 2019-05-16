@@ -5,6 +5,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -235,6 +236,47 @@ public class AtmMachineTest {
 
         Payment payment = atmMachine.withdraw(money, card);
         Mockito.verify(moneyDepot, times(1)).releaseBanknotes(paymentBanknotes);
+    }
+
+    @Test
+    public void testShouldReturnThatIsOneBanknot() {
+        money = Money.builder()
+                     .withAmount(10)
+                     .withCurrency(Currency.PL)
+                     .build();
+
+        card = Card.builder()
+                   .withCardNumber("cardNumber")
+                   .withPinNumber(2345)
+                   .build();
+
+        authenticationToken = AuthenticationToken.builder()
+                                                 .withAuthorizationCode(2345)
+                                                 .withUserId("id1")
+                                                 .build();
+
+        when(cardService.authorize(card)).thenReturn(Optional.of(authenticationToken));
+
+        when(bankService.charge(authenticationToken, money)).thenReturn(true);
+
+        List<Banknote> banknotes = Banknote.forCurrency(money.getCurrency())
+                                           .stream()
+                                           .sorted(Collections.reverseOrder())
+                                           .collect(Collectors.toList());
+
+        int amount = money.getAmount();
+        List<Banknote> paymentBanknotes = new ArrayList<>();
+        for (Banknote banknote : banknotes) {
+            while (amount >= banknote.getValue()) {
+                amount = amount - banknote.getValue();
+                paymentBanknotes.add(banknote);
+            }
+        }
+
+        when(moneyDepot.releaseBanknotes(paymentBanknotes)).thenReturn(true);
+
+        Payment payment = atmMachine.withdraw(money, card);
+        assertThat(payment.getValue().size(), Matchers.is(1));
     }
 
 }
